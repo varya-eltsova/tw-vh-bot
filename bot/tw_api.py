@@ -11,3 +11,14 @@ def get_token(login, password, app_key):
         timeout=TIMEOUT, 
     )
     return response.json()["token"]
+
+def get_balance(login, app_key, token):
+    response = requests.get(
+        f'{BASE_URL}/v1.1/finances/accounts/{login}',
+        headers={
+            "x-app-key": app_key,
+            "Authorization": f"Bearer {token}"
+            },
+        timeout=TIMEOUT,
+    )
+    return response.json()
