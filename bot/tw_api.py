@@ -3,22 +3,39 @@ import requests
 BASE_URL = "https://api.timeweb.ru"
 TIMEOUT = 10
 
+
 def get_token(login, password, app_key):
     response = requests.post(
-        f'{BASE_URL}/v1.2/access',
+        f"{BASE_URL}/v1.2/access",
         auth=(login, password),
         headers={"x-app-key": app_key},
-        timeout=TIMEOUT, 
+        timeout=TIMEOUT,
     )
     return response.json()["token"]
 
+
 def get_balance(login, app_key, token):
     response = requests.get(
-        f'{BASE_URL}/v1.1/finances/accounts/{login}',
-        headers={
-            "x-app-key": app_key,
-            "Authorization": f"Bearer {token}"
-            },
+        f"{BASE_URL}/v1.1/finances/accounts/{login}",
+        headers={"x-app-key": app_key, "Authorization": f"Bearer {token}"},
+        timeout=TIMEOUT,
+    )
+    return response.json()
+
+
+def get_sites(login, app_key, token):
+    response = requests.get(
+        f"{BASE_URL}/v1.1/sites/{login}",
+        headers={"x-app-key": app_key, "Authorization": f"Bearer {token}"},
+        timeout=TIMEOUT,
+    )
+    return response.json()
+
+
+def get_domains(login, app_key, token):
+    response = requests.get(
+        f"{BASE_URL}/v1/accounts/{login}/domains",
+        headers={"x-app-key": app_key, "Authorization": f"Bearer {token}"},
         timeout=TIMEOUT,
     )
     return response.json()
