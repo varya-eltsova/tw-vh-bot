@@ -34,6 +34,17 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
 
+class AuthState(Base):
+    __tablename__ = "tw_bot_auth_states"
+
+    telegram_id: Mapped[int] = mapped_column(
+        BigInteger, primary_key=True, autoincrement=False
+    )
+    step: Mapped[str] = mapped_column(String(16))
+    login: Mapped[str | None] = mapped_column(String(64))
+    app_key: Mapped[str | None] = mapped_column(String(255))
+
+
 def save_user(telegram_id, login, app_key, token):
     with Session(engine) as session:
         session.merge(
@@ -53,3 +64,11 @@ def delete_user(telegram_id):
         if user is not None:
             session.delete(user)
             session.commit()
+
+
+def init_db():
+    Base.metadata.create_all(engine)
+
+
+if __name__ == "__main__":
+    init_db()

@@ -1,7 +1,0 @@
-CREATE TABLE tw_bot_users (
-    telegram_id BIGINT PRIMARY KEY,
-    login VARCHAR(64) NOT NULL,
-    app_key VARCHAR(255) NOT NULL,
-    token VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
