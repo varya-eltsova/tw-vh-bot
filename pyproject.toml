@@ -3,10 +3,11 @@ name = "tw-vh-bot"
 version = "0.1.0"
 description = "Telegram-бот для работы с виртуальным хостингом Timeweb через публичный API"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "pymysql>=1.2.3",
     "pytelegrambotapi>=4.32.0",
     "python-dotenv>=1.2.1",
     "requests>=2.32.5",
+    "sqlalchemy>=2.0.54",
 ]
