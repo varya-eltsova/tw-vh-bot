@@ -1,8 +1,16 @@
+import requests
 import telebot
 from telebot import types
 
 from bot.config import TG_TOKEN
-from bot.db import get_auth_state, get_user, save_auth_state
+from bot.db import (
+    delete_auth_state,
+    get_auth_state,
+    get_user,
+    save_auth_state,
+    save_user,
+)
+from bot.tw_api import TimewebAPIError, get_token
 
 tw_bot = telebot.TeleBot(TG_TOKEN)
 
@@ -58,8 +66,24 @@ def on_text(message):
 
     elif state.step == "password":
         tw_bot.delete_message(message.chat.id, message.message_id)
+
+        try:
+            token = get_token(state.login, text, state.app_key)
+        except (TimewebAPIError, requests.RequestException):
+            save_auth_state(telegram_id, "app_key")
+            tw_bot.send_message(
+                message.chat.id,
+                "Не удалось авторизоваться: проверьте ключ, логин и пароль.\n"
+                "Попробуем ещё раз. Введите ключ API:",
+            )
+            return
+
+        save_user(telegram_id, state.login, state.app_key, token)
+        delete_auth_state(telegram_id)
         tw_bot.send_message(
-            message.chat.id, "Пароль получен. Авторизацию доделаем на следующем шаге."
+            message.chat.id,
+            f"Готово! Вы вошли как {state.login}.",
+            reply_markup=main_menu(),
         )
 
 

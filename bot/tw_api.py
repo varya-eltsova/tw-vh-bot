@@ -4,6 +4,15 @@ BASE_URL = "https://api.timeweb.ru"
 TIMEOUT = 10
 
 
+class TimewebAPIError(Exception):
+    """API Timeweb вернул ошибку."""
+
+
+def _check(response):
+    if response.status_code != 200:
+        raise TimewebAPIError(f"{response.status_code}: {response.text}")
+
+
 def get_token(login, password, app_key):
     response = requests.post(
         f"{BASE_URL}/v1.2/access",
@@ -11,6 +20,7 @@ def get_token(login, password, app_key):
         headers={"x-app-key": app_key},
         timeout=TIMEOUT,
     )
+    _check(response)
     return response.json()["token"]
 
 
@@ -20,6 +30,7 @@ def _get(path, app_key, token):
         headers={"x-app-key": app_key, "Authorization": f"Bearer {token}"},
         timeout=TIMEOUT,
     )
+    _check(response)
     return response.json()
 
 
