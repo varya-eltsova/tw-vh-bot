@@ -23,6 +23,3 @@ def webhook():
     except Exception:
         logger.exception("Ошибка при обработке обновления %s", update.update_id)
     return ""
-
-WEBHOOK_URL=https://ch81104.tw1.ru/webhook
-WEBHOOK_SECRET=4dw8AtOa-gmt75ypOY9RXH72LGQX6fGom8_Er4Cxb8E
