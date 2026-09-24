@@ -4,7 +4,7 @@ import requests
 import telebot
 from telebot import types
 
-from bot.config import TG_TOKEN
+from bot.config import LOG_FILE, TG_TOKEN
 from bot.db import (
     delete_auth_state,
     delete_user,
@@ -20,12 +20,12 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler("bot.log", encoding="utf-8"),
+        logging.FileHandler(LOG_FILE, encoding="utf-8"),
     ],
 )
 logger = logging.getLogger(__name__)
 
-tw_bot = telebot.TeleBot(TG_TOKEN)
+tw_bot = telebot.TeleBot(TG_TOKEN, threaded=False)
 
 
 def main_menu():
