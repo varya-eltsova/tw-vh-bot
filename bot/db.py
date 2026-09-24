@@ -66,6 +66,27 @@ def delete_user(telegram_id):
             session.commit()
 
 
+def save_auth_state(telegram_id, step, login=None, app_key=None):
+    with Session(engine) as session:
+        session.merge(
+            AuthState(telegram_id=telegram_id, step=step, login=login, app_key=app_key)
+        )
+        session.commit()
+
+
+def get_auth_state(telegram_id):
+    with Session(engine) as session:
+        return session.get(AuthState, telegram_id)
+
+
+def delete_auth_state(telegram_id):
+    with Session(engine) as session:
+        state = session.get(AuthState, telegram_id)
+        if state is not None:
+            session.delete(state)
+            session.commit()
+
+
 def init_db():
     Base.metadata.create_all(engine)
 
