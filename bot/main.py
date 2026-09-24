@@ -1,12 +1,9 @@
-import os
-
 import telebot
-from dotenv import load_dotenv
 from telebot import types
 
-load_dotenv()
+from bot.config import TG_TOKEN
 
-tw_bot = telebot.TeleBot(os.getenv("TG_TOKEN"))
+tw_bot = telebot.TeleBot(TG_TOKEN)
 
 
 def main_menu():
