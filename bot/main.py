@@ -1,3 +1,5 @@
+import logging
+
 import requests
 import telebot
 from telebot import types
@@ -12,6 +14,16 @@ from bot.db import (
     save_user,
 )
 from bot.tw_api import TimewebAPIError, get_balance, get_domains, get_sites, get_token
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler("bot.log", encoding="utf-8"),
+    ],
+)
+logger = logging.getLogger(__name__)
 
 tw_bot = telebot.TeleBot(TG_TOKEN)
 
@@ -96,7 +108,13 @@ def on_text(message):
 
         try:
             token = get_token(state.login, text, state.app_key)
-        except (TimewebAPIError, requests.RequestException):
+        except (TimewebAPIError, requests.RequestException) as error:
+            logger.warning(
+                "Неудачная авторизация: telegram_id=%s, login=%s, ошибка: %s",
+                telegram_id,
+                state.login,
+                error,
+            )
             save_auth_state(telegram_id, "app_key")
             tw_bot.send_message(
                 message.chat.id,
@@ -107,6 +125,11 @@ def on_text(message):
 
         save_user(telegram_id, state.login, state.app_key, token)
         delete_auth_state(telegram_id)
+        logger.info(
+            "Пользователь авторизовался: telegram_id=%s, login=%s",
+            telegram_id,
+            state.login,
+        )
         tw_bot.send_message(
             message.chat.id,
             f"Готово! Вы вошли как {state.login}.",
@@ -128,6 +151,11 @@ def on_menu_click(call):
 
     if call.data == "change_account":
         delete_user(user.telegram_id)
+        logger.info(
+            "Пользователь вышел: telegram_id=%s, login=%s",
+            user.telegram_id,
+            user.login,
+        )
         tw_bot.edit_message_text(
             "Вы вышли из аккаунта. Чтобы войти в другой, нажмите /start.",
             call.message.chat.id,
@@ -145,6 +173,12 @@ def on_menu_click(call):
         else:
             text = "Неизвестная команда!"
     except (TimewebAPIError, requests.RequestException):
+        logger.exception(
+            "Ошибка API: действие=%s, telegram_id=%s, login=%s",
+            call.data,
+            user.telegram_id,
+            user.login,
+        )
         text = "Не удалось получить данные. Попробуйте позже."
 
     try:
@@ -160,4 +194,5 @@ def on_menu_click(call):
 
 
 if __name__ == "__main__":
+    logger.info("Бот запущен в режиме polling")
     tw_bot.infinity_polling()
