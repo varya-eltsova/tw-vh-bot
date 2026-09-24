@@ -5,12 +5,13 @@ from telebot import types
 from bot.config import TG_TOKEN
 from bot.db import (
     delete_auth_state,
+    delete_user,
     get_auth_state,
     get_user,
     save_auth_state,
     save_user,
 )
-from bot.tw_api import TimewebAPIError, get_token
+from bot.tw_api import TimewebAPIError, get_balance, get_domains, get_sites, get_token
 
 tw_bot = telebot.TeleBot(TG_TOKEN)
 
@@ -22,7 +23,33 @@ def main_menu():
         types.InlineKeyboardButton("Мой баланс", callback_data="balance"),
         types.InlineKeyboardButton("Мои домены", callback_data="domains"),
     )
+    markup.row(
+        types.InlineKeyboardButton("Сменить аккаунт", callback_data="change_account"),
+    )
     return markup
+
+
+def format_balance(data):
+    return f"Баланс: {data['balance']:.2f} {data['currency']}"
+
+
+def format_domains(data):
+    if not data:
+        return "Доменов на аккаунте нет."
+    lines = ["Домены на аккаунте:"]
+    for domain in data:
+        domain = domain.encode().decode("idna")
+        lines.append(domain)
+    return "\n".join(lines)
+
+
+def format_sites(data):
+    if not data:
+        return "Сайтов на аккаунте нет."
+    lines = ["Ваши сайты:"]
+    for site in data:
+        lines.append(site["directory"])
+    return "\n".join(lines)
 
 
 @tw_bot.message_handler(commands=["start"])
@@ -90,15 +117,35 @@ def on_text(message):
 @tw_bot.callback_query_handler(func=lambda call: True)
 def on_menu_click(call):
     tw_bot.answer_callback_query(call.id)
+    user = get_user(call.from_user.id)
+    if user is None:
+        tw_bot.edit_message_text(
+            "Необходима авторизация через /start.",
+            call.message.chat.id,
+            call.message.message_id,
+        )
+        return
 
-    if call.data == "sites":
-        text = "Здесь будет список сайтов"
-    elif call.data == "domains":
-        text = "Здесь будет список доменов"
-    elif call.data == "balance":
-        text = "Здесь будет баланс"
-    else:
-        text = "Неизвестное сообщение"
+    if call.data == "change_account":
+        delete_user(user.telegram_id)
+        tw_bot.edit_message_text(
+            "Вы вышли из аккаунта. Чтобы войти в другой, нажмите /start.",
+            call.message.chat.id,
+            call.message.message_id,
+        )
+        return
+
+    try:
+        if call.data == "sites":
+            text = format_sites(get_sites(user.login, user.app_key, user.token))
+        elif call.data == "domains":
+            text = format_domains(get_domains(user.login, user.app_key, user.token))
+        elif call.data == "balance":
+            text = format_balance(get_balance(user.login, user.app_key, user.token))
+        else:
+            text = "Неизвестная команда!"
+    except (TimewebAPIError, requests.RequestException):
+        text = "Не удалось получить данные. Попробуйте позже."
 
     try:
         tw_bot.edit_message_text(
