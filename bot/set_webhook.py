@@ -1,3 +1,5 @@
+"""Регистрация webhook в Telegram: python -m bot.set_webhook"""
+
 from bot.config import WEBHOOK_SECRET, WEBHOOK_URL
 from bot.main import tw_bot
 

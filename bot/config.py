@@ -1,13 +1,18 @@
+"""Настройки бота из файла .env."""
+
 import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 
+# Абсолютный путь к корню проекта. На хостинге Apache запускает код из своей
+# папки, поэтому относительные пути (".env", "bot.log") не сработают.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / ".env")
 
 TG_TOKEN = os.getenv("TG_TOKEN")
+# Адрес посредника к Telegram API. Нужен там, где api.telegram.org недоступен.
 TG_API_URL = os.getenv("TG_API_URL")
 
 DB_HOST = os.getenv("DB_HOST")
