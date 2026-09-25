@@ -24,3 +24,17 @@ WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")
 
 LOG_FILE = BASE_DIR / "bot.log"
+
+# Без этих настроек бот не работает ни локально, ни на хостинге.
+# Лучше сразу остановиться с понятной ошибкой, чем упасть позже с непонятной.
+REQUIRED = {
+    "TG_TOKEN": TG_TOKEN,
+    "DB_HOST": DB_HOST,
+    "DB_NAME": DB_NAME,
+    "DB_USER": DB_USER,
+    "DB_PASSWORD": DB_PASSWORD,
+}
+
+missing = [name for name, value in REQUIRED.items() if not value]
+if missing:
+    raise RuntimeError("В .env не заданы: " + ", ".join(missing))
