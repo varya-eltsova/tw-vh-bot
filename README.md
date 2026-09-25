@@ -124,7 +124,7 @@ python -c "from bot.main import tw_bot; tw_bot.remove_webhook()"
 
 3. Создать `.env` (`DB_HOST=localhost`, заполнить `TG_API_URL`, `WEBHOOK_URL`, `WEBHOOK_SECRET`) и закрыть доступ: `chmod 600 .env`.
 4. Создать таблицы: `python -m bot.db`.
-5. Скопировать `deploy/index.wsgi` и `deploy/.htaccess` в `public_html`, выставить `chmod 755 index.wsgi`.
+5. Скопировать `deploy/index.wsgi` и `deploy/.htaccess` в `public_html`, поправить пути в `index.wsgi` под свой аккаунт, выставить `chmod 755 index.wsgi`.
 6. Создать Cloudflare Worker из `deploy/relay-worker.js` и задать ему переменные `BOT_ID` и `BOT_WEBHOOK_URL`.
 7. Зарегистрировать webhook: `python -m bot.set_webhook`.
 
