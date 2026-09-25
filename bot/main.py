@@ -40,7 +40,7 @@ if TG_API_URL:
 tw_bot = telebot.TeleBot(TG_TOKEN, threaded=False)
 
 
-def main_menu():
+def main_menu() -> types.InlineKeyboardMarkup:
     """Кнопки главного меню."""
     markup = types.InlineKeyboardMarkup()
     markup.row(
@@ -54,12 +54,12 @@ def main_menu():
     return markup
 
 
-def format_balance(data):
+def format_balance(data: dict) -> str:
     """Текст с балансом для пользователя."""
     return f"Баланс: {data['balance']:.2f} {data['currency']}"
 
 
-def format_domains(data):
+def format_domains(data: list[str]) -> str:
     """Текст со списком доменов для пользователя."""
     if not data:
         return "Доменов на аккаунте нет."
@@ -71,7 +71,7 @@ def format_domains(data):
     return "\n".join(lines)
 
 
-def format_sites(data):
+def format_sites(data: list[dict]) -> str:
     """Текст со списком сайтов для пользователя."""
     if not data:
         return "Сайтов на аккаунте нет."
@@ -82,7 +82,7 @@ def format_sites(data):
 
 
 @tw_bot.message_handler(commands=["start"])
-def start(message):
+def start(message: types.Message) -> None:
     """Команда /start: меню для авторизованных, иначе начало авторизации."""
     telegram_id = message.from_user.id
     user = get_user(telegram_id)
@@ -106,7 +106,7 @@ def start(message):
 # Обработчик любого текста объявлен после /start: telebot проверяет обработчики
 # по порядку, и иначе этот перехватывал бы и саму команду /start.
 @tw_bot.message_handler(content_types=["text"])
-def on_text(message):
+def on_text(message: types.Message) -> None:
     """Шаги авторизации: ключ API -> логин -> пароль."""
     telegram_id = message.from_user.id
     state = get_auth_state(telegram_id)
@@ -163,7 +163,7 @@ def on_text(message):
 
 
 @tw_bot.callback_query_handler(func=lambda call: True)
-def on_menu_click(call):
+def on_menu_click(call: types.CallbackQuery) -> None:
     """Нажатия кнопок меню. Результат показывается в том же сообщении."""
     tw_bot.answer_callback_query(call.id)
     user = get_user(call.from_user.id)

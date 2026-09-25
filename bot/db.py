@@ -60,7 +60,7 @@ class AuthState(Base):
     app_key: Mapped[str | None] = mapped_column(String(255))
 
 
-def save_user(telegram_id, login, app_key, token):
+def save_user(telegram_id: int, login: str, app_key: str, token: str) -> None:
     """Сохранить пользователя после успешной авторизации."""
     with Session(engine) as session:
         # merge добавляет запись или обновляет существующую:
@@ -71,13 +71,13 @@ def save_user(telegram_id, login, app_key, token):
         session.commit()
 
 
-def get_user(telegram_id):
+def get_user(telegram_id: int) -> User | None:
     """Найти пользователя по Telegram ID. None, если он не авторизован."""
     with Session(engine) as session:
         return session.get(User, telegram_id)
 
 
-def delete_user(telegram_id):
+def delete_user(telegram_id: int) -> None:
     """Удалить пользователя (выход из аккаунта)."""
     with Session(engine) as session:
         user = session.get(User, telegram_id)
@@ -86,7 +86,9 @@ def delete_user(telegram_id):
             session.commit()
 
 
-def save_auth_state(telegram_id, step, login=None, app_key=None):
+def save_auth_state(
+    telegram_id: int, step: str, login: str | None = None, app_key: str | None = None
+) -> None:
     """Запомнить шаг авторизации и уже введённые данные."""
     # merge перезаписывает запись целиком, поэтому уже введённые
     # login и app_key нужно передавать заново на каждом шаге
@@ -97,13 +99,13 @@ def save_auth_state(telegram_id, step, login=None, app_key=None):
         session.commit()
 
 
-def get_auth_state(telegram_id):
+def get_auth_state(telegram_id: int) -> AuthState | None:
     """Узнать, на каком шаге авторизации пользователь. None - не авторизуется."""
     with Session(engine) as session:
         return session.get(AuthState, telegram_id)
 
 
-def delete_auth_state(telegram_id):
+def delete_auth_state(telegram_id: int) -> None:
     """Удалить состояние после завершения авторизации."""
     with Session(engine) as session:
         state = session.get(AuthState, telegram_id)
@@ -112,7 +114,7 @@ def delete_auth_state(telegram_id):
             session.commit()
 
 
-def init_db():
+def init_db() -> None:
     """Создать таблицы, которых ещё нет. Существующие не меняются."""
     Base.metadata.create_all(engine)
 
