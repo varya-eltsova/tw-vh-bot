@@ -4,6 +4,8 @@ Telegram-бот для работы с виртуальным хостингом
 
 Бот развёрнут на виртуальном хостинге Timeweb и доступен для проверки: [@tw_vh_bot](https://t.me/tw_vh_bot)
 
+Используется из хостинга: Python 3.10 (приложение через WSGI), MySQL (пользователи и шаги авторизации), SSL на домене `ch81104.tw1.ru`.
+
 ## Как проверить
 
 1. Открыть [@tw_vh_bot](https://t.me/tw_vh_bot) и нажать **Запустить бота**
@@ -112,8 +114,9 @@ python -c "from bot.main import tw_bot; tw_bot.remove_webhook()"
 
 ## Развертывание на виртуальном хостинге
 
-1. Клонировать проект **в папку сайта, рядом с `public_html`**: `~/<сайт>/tw-vh-bot`. В другие места домашней папки веб-приложение доступа не имеет.
-2. Создать окружение и установить зависимости. `python3 -m venv` на хостинге не работает (нет `ensurepip`), поэтому через virtualenv:
+1. Привязать к сайту домен с SSL-сертификатом. Telegram отправляет webhook только по HTTPS, а посредник пересылает запросы на сайт тоже по HTTPS. Здесь используется технический домен `ch81104.tw1.ru`: на нём сертификат Let's Encrypt установлен автоматически.
+2. Клонировать проект **в папку сайта, рядом с `public_html`**: `~/<сайт>/tw-vh-bot`. В другие места домашней папки веб-приложение доступа не имеет.
+3. Создать окружение и установить зависимости. `python3 -m venv` на хостинге не работает (нет `ensurepip`), поэтому через virtualenv:
 
    ```bash
    wget -O ~/virtualenv.pyz https://bootstrap.pypa.io/virtualenv/3.10/virtualenv.pyz
@@ -122,11 +125,11 @@ python -c "from bot.main import tw_bot; tw_bot.remove_webhook()"
    pip install -r requirements.txt
    ```
 
-3. Создать `.env` (`DB_HOST=localhost`, заполнить `TG_API_URL`, `WEBHOOK_URL`, `WEBHOOK_SECRET`) и закрыть доступ: `chmod 600 .env`.
-4. Создать таблицы: `python -m bot.db`.
-5. Скопировать `deploy/index.wsgi` и `deploy/.htaccess` в `public_html`, поправить пути в `index.wsgi` под свой аккаунт, выставить `chmod 755 index.wsgi`.
-6. Создать Cloudflare Worker из `deploy/relay-worker.js` и задать ему переменные `BOT_ID` и `BOT_WEBHOOK_URL`.
-7. Зарегистрировать webhook: `python -m bot.set_webhook`.
+4. Создать `.env` (`DB_HOST=localhost`, заполнить `TG_API_URL`, `WEBHOOK_URL`, `WEBHOOK_SECRET`) и закрыть доступ: `chmod 600 .env`.
+5. Создать таблицы: `python -m bot.db`.
+6. Скопировать `deploy/index.wsgi` и `deploy/.htaccess` в `public_html`, поправить пути в `index.wsgi` под свой аккаунт, выставить `chmod 755 index.wsgi`.
+7. Создать Cloudflare Worker из `deploy/relay-worker.js` и задать ему переменные `BOT_ID` и `BOT_WEBHOOK_URL`.
+8. Зарегистрировать webhook: `python -m bot.set_webhook`.
 
 После обновления кода на сервере (`git pull`) нужно перезапустить приложение:
 
