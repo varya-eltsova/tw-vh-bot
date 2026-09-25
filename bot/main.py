@@ -4,7 +4,7 @@ import requests
 import telebot
 from telebot import types
 
-from bot.config import LOG_FILE, TG_TOKEN
+from bot.config import LOG_FILE, TG_API_URL, TG_TOKEN
 from bot.db import (
     delete_auth_state,
     delete_user,
@@ -24,6 +24,9 @@ logging.basicConfig(
     ],
 )
 logger = logging.getLogger(__name__)
+
+if TG_API_URL:
+    telebot.apihelper.API_URL = TG_API_URL.rstrip("/") + "/bot{0}/{1}"
 
 tw_bot = telebot.TeleBot(TG_TOKEN, threaded=False)
 
